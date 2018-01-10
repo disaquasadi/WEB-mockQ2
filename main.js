@@ -1,11 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App.jsx'
+import App3 from './App3.jsx'
 import {combineReducers, createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux'
 import thunk from 'redux-thunk'
 import Test from './Test.jsx'
-import App3 from './App3.jsx'
+
 
 function students(state = [], action){
     if(action.type=='LOAD_STUDENT'){
@@ -19,7 +20,7 @@ function students(state = [], action){
         return [...state, action.payload]
     } else if(action.type==='DELETE_STUDENT'){
         console.log(action.type)
-        return state.filter((s)=>s.name!==action.payload)
+        return state.filter((s)=>s._id!==action.payload)
     }
     else{
         return state
@@ -43,7 +44,7 @@ function students(state = [], action){
 //     }
 // }
 
-function fetchStudent(){
+export function fetchStudent(){
     return function(dispatch){
         fetch('http://bestlab.us:8080/students')
         .then(function(res){
@@ -54,6 +55,20 @@ function fetchStudent(){
                 type: 'FETCH_STUDENT_SUCCESS',
                 payload: data
             })
+        })
+    }
+}
+export function deleteStudent(id) {
+    return function (dispatch) {
+        fetch(`http://bestlab.us:8080/students/${id}`, {
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            method: 'delete',
+        })
+        .then((res) => {
+            return res.json()
         })
     }
 }
@@ -90,17 +105,15 @@ var logging = store => next => action => {
 
 var store = createStore(centralState, applyMiddleware(thunk))
 
-store.dispatch({type: 'LOAD_STUDENT'})
-store.dispatch({type: 'ADD_STUDENT', payload: {name: 'Tim'}})
-store.dispatch({type: 'DELELE_STUDENT', payload: {name: 'Thanh'}})
 store.dispatch(fetchStudent())
+
 
 
 
 ReactDOM.render(
 <Provider store={store}>    
     <App3 />
-    </Provider>    
+</Provider>    
     , document.getElementById('app')
 
 )

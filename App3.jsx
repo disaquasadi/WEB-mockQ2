@@ -1,12 +1,15 @@
 import React from 'react';
-import Hello from './Hello.jsx'
 import {connect} from 'react-redux'
-import {addStudent} from './main.js'
+import {addStudent,fetchStudent,deleteStudent} from './main.js'
 
  class App3 extends React.Component{
     constructor(){
         super()
-        this.state = {name:"",count:0}
+        this.state = {name:"",count:1}
+    }
+
+    componentDidMount(){
+        this.props.dispatch(fetchStudent())
     }
 
     handleChange(e){
@@ -17,12 +20,17 @@ import {addStudent} from './main.js'
 
     handleSave(){
         this.setState({count: this.state.count + 1})
-        this.props.dispatch(addStudent({name: this.state.name}))
+        this.props.dispatch(addStudent(this.state))
     }
 
-    handleDelete(name){
+    handleDelete(_id){
         if(confirm("delete huh ?")){
-            this.props.dispatch({type: "DELETE_STUDENT",payload: name})
+            this.props.dispatch({
+                type: "DELETE_STUDENT",
+                payload: _id
+                
+            })
+        this.props.dispatch(deleteStudent(_id))
         }
     }
     render(){
@@ -30,11 +38,10 @@ import {addStudent} from './main.js'
             <div>
                 <h1>Greeting Bitch</h1>
                 <input type="text" name="name" value = {this.state.name} onChange={this.handleChange.bind(this)}/>
-                <button onClick={this.handleSave.bind(this)}>greet</button><br/>
-                {this.state.name} <br/>
-                {this.state.count}
+                <button onClick={()=>this.handleSave(this.state.count)}>greet</button><br/>
+                {this.state.name} | {this.state.count}
                 {this.props.students.map((s)=>
-                    <li>{s.name}|<a onClick ={()=>this.handleDelete(s.name)}>Delete</a></li>
+                    <li>{s.name}|{s.count}<button onClick ={()=>this.handleDelete(s._id)}>Delete</button></li>
                 )}
             </div>
         )
